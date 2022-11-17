@@ -1,5 +1,5 @@
 # Elon Bot
-Simple Discord bot with slash commands
+Simple Discord bot with slash commands made with discord.py
 
 
 ### Elon can:
