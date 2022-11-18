@@ -187,24 +187,21 @@ async def user(interaction: discord.Interaction):
     await interaction.response.send_message(content=None, embed=embed)
     
 @tree.command(name="translate", description="Translate a sentence to the selected language")
-async def translate(interaction: discord.Interaction, source: str, target: str, text: str):
-    url = 'https://nlp-translation.p.rapidapi.com/v1/translate'
+async def translate(interaction: discord.Interaction, target: str, text: str):
+    url = "https://microsoft-translator-text.p.rapidapi.com/translate"
 
+    querystring = {"to[0]": target,"api-version":"3.0","profanityAction":"NoAction","textType":"plain"}
+
+    body = [{"Text": text}]
     headers = {
-        'content-type': 'application/x-www-form-urlencoded',
-        'X-RapidAPI-Key': '4ddb97d8a5mshb6e76b5a66a0d12p193670jsnaba4c2cbf173',
-        'X-RapidAPI-Host': 'nlp-translation.p.rapidapi.com'
+        "content-type": "application/json",
+        "X-RapidAPI-Key": "4ddb97d8a5mshb6e76b5a66a0d12p193670jsnaba4c2cbf173",
+        "X-RapidAPI-Host": "microsoft-translator-text.p.rapidapi.com"
     }
 
-    body = {
-        "text": text, 
-        "from": source,
-        "to": target
-    }
+    response = requests.request("POST", url, json=body, headers=headers, params=querystring)
 
-    response = requests.post(url, json=body, headers=headers)
-
-    await interaction.response.send_message(f"{response.text}")
+    await interaction.response.send_message(f"{response.json()[0]['translations'][0]['text']}")
 
 
 TOKEN = ""
