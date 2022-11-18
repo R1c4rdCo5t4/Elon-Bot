@@ -1,3 +1,4 @@
+import datetime
 import discord
 from discord import app_commands
 from discord.ui import Select, View, Button
@@ -66,9 +67,21 @@ async def calculate(interaction: discord.Interaction, num1:int, operation:str, n
 
 
 @tree.command(name="random", description="Generates a random number from range")
-async def random(interaction: discord.Interaction, num1:int, num2:int):
+async def random_number(interaction: discord.Interaction, num1:int, num2:int):
     await interaction.response.send_message(random.randint(num1, num2))
     
+
+@tree.command(name="flipcoin", description="Flips a coin")
+async def flipcoin(interaction: discord.Interaction):
+    await interaction.response.send_message(random.choice(["Heads", "Tails"]))
+
+
+# command that adds roles to user
+@tree.command(name="role", description="Add a role to yourself")
+async def role(interaction: discord.Interaction, role: discord.Role):
+    await interaction.user.add_roles(role)
+    await interaction.response.send_message(f"Added {role} to {interaction.user}")
+
 
 
 class MyButton(Button):
@@ -154,6 +167,27 @@ async def changed_status(interaction: discord.Interaction, status: str):
     await interaction.response.send_message("Choose an Activity to Display!", view=view, ephemeral=True,delete_after=10)
     
 
+@tree.command(name="ping", description="Tests the bot's response time (latency)")
+async def ping(interaction: discord.Interaction):
+    await interaction.response.send_message(f"Pong! :ping_pong:\n**Time:** {round (client.latency * 1000)} ms")
 
-TOKEN = ""
+
+@tree.command(name="user", description="Displays user information in the server")
+async def user(interaction: discord.Interaction):
+
+
+    def format_date(d: datetime) -> str:
+        return str(f"{d.day}-{d.month}-{d.year}")
+
+    embed = discord.Embed(
+        title=interaction.user.name,
+        description=f"**Joined Discord:** {format_date(interaction.user.created_at)}\n**Joined Server:** {format_date(interaction.user.joined_at)}",
+        colour=interaction.user.color)
+    embed.set_image(url=interaction.user.avatar)
+
+    await interaction.response.send_message(content=None, embed=embed)
+    
+
+
+TOKEN = "ODIwMzcyNzcxOTkyNjMzNDI0.GMfzAt.x8uDDo5Q-ysLjI5Bkc1L_Y2vwU0Pl_2ZNnfb3Q"
 client.run(TOKEN)
