@@ -202,9 +202,9 @@ async def translate(interaction: discord.Interaction, source: str, target: str, 
         "to": target
     }
 
-    response = await requests.post(url, json=body, headers=headers)
+    response = requests.post(url, json=body, headers=headers)
 
-    await interaction.response.send_message(f"{response.translatedText}")
+    await interaction.response.send_message(f"{response.text}")
 
 
 TOKEN = ""
