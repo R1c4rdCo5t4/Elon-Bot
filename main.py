@@ -5,6 +5,7 @@ from discord.ui import Select, View, Button
 import random
 import time
 from colors import Colors
+import requests
 
 
 
@@ -81,8 +82,6 @@ async def flipcoin(interaction: discord.Interaction):
 async def role(interaction: discord.Interaction, role: discord.Role):
     await interaction.user.add_roles(role)
     await interaction.response.send_message(f"Added {role} to {interaction.user}")
-
-
 
 class MyButton(Button):
     def __init__(self, author, id, emoji): # override 
@@ -187,6 +186,25 @@ async def user(interaction: discord.Interaction):
 
     await interaction.response.send_message(content=None, embed=embed)
     
+@tree.command(name="translate", description="Translate a sentence to the selected language")
+async def translate(interaction: discord.Interaction, source: str, target: str, text: str):
+    url = 'https://nlp-translation.p.rapidapi.com/v1/translate'
+
+    headers = {
+        'content-type': 'application/x-www-form-urlencoded',
+        'X-RapidAPI-Key': '4ddb97d8a5mshb6e76b5a66a0d12p193670jsnaba4c2cbf173',
+        'X-RapidAPI-Host': 'nlp-translation.p.rapidapi.com'
+    }
+
+    body = {
+        "text": text, 
+        "from": source,
+        "to": target
+    }
+
+    response = await requests.post(url, json=body, headers=headers)
+
+    await interaction.response.send_message(f"{response.translatedText}")
 
 
 TOKEN = ""
