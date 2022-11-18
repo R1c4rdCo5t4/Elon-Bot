@@ -3,6 +3,7 @@ from discord import app_commands
 from discord.ui import Select, View, Button
 import random
 import time
+from colors import Colors
 
 
 
@@ -23,16 +24,16 @@ class Client(discord.Client):
 client = Client()
 tree = app_commands.CommandTree(client)
 
+
 @tree.command(name="hello", description="say hello")
 async def hello(interaction: discord.Interaction):
     await interaction.response.send_message(f"Hello {interaction.user}!")
     await interaction.followup.send("I'm elon!")
 
+
 @tree.command(name="bye", description="say goodbye")
 async def bye(interaction: discord.Interaction):
     await interaction.response.send_message(f"Goodbye {interaction.user}!")
-
-
 
 
 
@@ -51,7 +52,6 @@ async def average(interaction: discord.Interaction, values:str):
 
 
 
-
 @tree.command(name="calculate", description="Perform simple math calculations")
 async def calculate(interaction: discord.Interaction, num1:int, operation:str, num2:int):
 
@@ -65,14 +65,23 @@ async def calculate(interaction: discord.Interaction, num1:int, operation:str, n
   
 
 
+@tree.command(name="random", description="Generates a random number from range")
+async def random(interaction: discord.Interaction, num1:int, num2:int):
+    await interaction.response.send_message(random.randint(num1, num2))
+    
 
 
 class MyButton(Button):
-    def __init__(self, id, emoji): # override 
+    def __init__(self, author, id, emoji): # override 
         super().__init__(emoji=emoji) # init parent class
         self.id = id
+        self.author = author
 
     async def callback(self, interaction):
+
+        if(self.author != interaction.user):
+            await interaction.response.send_message("Not your game")
+            return
 
         plays = ['rock','paper','scissors']
         user_play = self.id
@@ -90,7 +99,7 @@ class MyButton(Button):
             #lose
             await interaction.response.send_message(f"elon played **{bot_play}**... elon wins!")
 
-    
+   
 
 
 
@@ -100,16 +109,16 @@ async def rps(interaction: discord.Interaction):
 
     view = View()
     buttons = [
-        MyButton("rock", emoji="🪨"),
-        MyButton("paper", emoji="📄"),
-        MyButton("scissors", emoji="✂️")
+        MyButton(interaction.user, "rock", emoji="🪨"),
+        MyButton(interaction.user, "paper", emoji="📄"),
+        MyButton(interaction.user, "scissors", emoji="✂️")
     ]
 
     for button in buttons:
         view.add_item(button)
 
 
-    await interaction.response.send_message("Let's play!", view=view)
+    await interaction.response.send_message("Let's play!", view=view, delete_after=60)
 
 
 
@@ -120,47 +129,29 @@ async def rps(interaction: discord.Interaction):
 async def changed_status(interaction: discord.Interaction, status: str):
     status = status.title()
 
+    activities = {
+        "Playing": discord.ActivityType.playing,
+        "Watching": discord.ActivityType.watching,
+        "Listening": discord.ActivityType.listening,
+        "Streaming": discord.ActivityType.streaming
+    }
+
     select = Select(
-        placeholder = "Select an Activity!", 
+        placeholder = "Select an Activity!",
         min_values = 1,
-        max_values = 1, 
-        options = [
-            discord.SelectOption(
-                label="Playing",
-                description=f"Display 'Playing {status}'"
-            ),
-            discord.SelectOption(
-                label="Watching",
-                description=f"Display 'Watching {status}'"
-            ),
-            discord.SelectOption(
-                label="Listening",
-                description=f"Display 'Listening to {status}'"
-            ),
-            discord.SelectOption(
-                label="Streaming",
-                description=f"Display 'Streaming {status}'"
-            )
-        ])
+        max_values = 1,
+        options = [discord.SelectOption(label=activity, description=f"Display '{activity} {status}'") for activity in activities.keys()]
+    )
 
     async def changed_status_callback(interaction):
-
-        activities = {
-            "Playing": discord.ActivityType.playing,
-            "Watching": discord.ActivityType.watching,
-            "Listening": discord.ActivityType.listening,
-            "Streaming": discord.ActivityType.streaming
-        }
-
         await client.change_presence(activity=discord.Activity(type=activities[select.values[0]], name=status))
-        await interaction.response.send_message("Done.")
 
         
     select.callback = changed_status_callback
     view = View()
     view.add_item(select)
 
-    await interaction.response.send_message("Choose an Activity to Display!", view=view)
+    await interaction.response.send_message("Choose an Activity to Display!", view=view, ephemeral=True,delete_after=10)
     
 
 
