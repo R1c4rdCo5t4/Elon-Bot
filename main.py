@@ -189,5 +189,5 @@ async def user(interaction: discord.Interaction):
     
 
 
-TOKEN = "ODIwMzcyNzcxOTkyNjMzNDI0.GMfzAt.x8uDDo5Q-ysLjI5Bkc1L_Y2vwU0Pl_2ZNnfb3Q"
+TOKEN = ""
 client.run(TOKEN)
