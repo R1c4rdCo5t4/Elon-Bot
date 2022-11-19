@@ -186,22 +186,64 @@ async def user(interaction: discord.Interaction):
 
     await interaction.response.send_message(content=None, embed=embed)
     
+    
 @tree.command(name="translate", description="Translate a sentence to the selected language")
 async def translate(interaction: discord.Interaction, target: str, text: str):
-    url = "https://microsoft-translator-text.p.rapidapi.com/translate"
 
-    querystring = {"to[0]": target,"api-version":"3.0","profanityAction":"NoAction","textType":"plain"}
+    try:
+        url = "https://microsoft-translator-text.p.rapidapi.com/translate"
 
-    body = [{"Text": text}]
-    headers = {
-        "content-type": "application/json",
-        "X-RapidAPI-Key": "4ddb97d8a5mshb6e76b5a66a0d12p193670jsnaba4c2cbf173",
-        "X-RapidAPI-Host": "microsoft-translator-text.p.rapidapi.com"
-    }
+        querystring = {"to[0]": target,"api-version":"3.0","profanityAction":"NoAction","textType":"plain"}
 
-    response = requests.request("POST", url, json=body, headers=headers, params=querystring)
+        body = [{"Text": text}]
+        headers = {
+            "content-type": "application/json",
+            "X-RapidAPI-Key": "4ddb97d8a5mshb6e76b5a66a0d12p193670jsnaba4c2cbf173",
+            "X-RapidAPI-Host": "microsoft-translator-text.p.rapidapi.com"
+        }
+        response = requests.request("POST", url, json=body, headers=headers, params=querystring)
+
+    except discord.app_commands.errors.CommandInvokeError:
+        await interaction.response.send_message("Invalid target langugae {target}")
+        return
+
+    except:
+        await interaction.response.send_message("An error occured")
+        return
 
     await interaction.response.send_message(f"{response.json()[0]['translations'][0]['text']}")
+
+
+
+# command that sends a random meme
+@tree.command(name="meme", description="Sends a random meme")
+async def meme(interaction: discord.Interaction):
+    meme = requests.get("https://meme-api.herokuapp.com/gimme")
+    meme = meme.json()
+    embed = discord.Embed(title=meme["title"], colour=discord.Colour.blue())
+    embed.set_image(url=meme["url"])
+    await interaction.response.send_message(content=None, embed=embed)
+
+
+# command that gets the code from a github repository
+@tree.command(name="code", description="Gets the files from a github repository")
+async def code(interaction: discord.Interaction, repo: str):
+    repo = repo.split("/")
+    url = f"https://api.github.com/repos/{repo[0]}/{repo[1]}/contents"
+    code = requests.get(url)
+    code = code.json()
+    files = []
+    for file in code:
+        files.append(file["name"])
+    embed = discord.Embed(title="Files", description="\n".join(files), colour=discord.Colour.blue())
+    await interaction.response.send_message(content=None, embed=embed)
+
+# command that sends you a private message
+@tree.command(name="dm", description="Sends you a private message")
+async def dm(interaction: discord.Interaction, message: str):
+    await interaction.user.send(message)
+    await interaction.response.send_message("Message sent!")
+    
 
 
 TOKEN = ""
