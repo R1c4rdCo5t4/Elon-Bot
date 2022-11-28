@@ -8,7 +8,7 @@ from colors import Colors
 import requests
 
 
-
+# bot client startup
 class Client(discord.Client):
     def __init__(self):
         super().__init__(intents=discord.Intents.default())
@@ -23,29 +23,31 @@ class Client(discord.Client):
 
         print(f"{self.user} has been logged in.")
 
+        
 client = Client()
 tree = app_commands.CommandTree(client)
 
 
+# greetings command
 @tree.command(name="hello", description="say hello")
 async def hello(interaction: discord.Interaction):
     await interaction.response.send_message(f"Hello {interaction.user}!")
     await interaction.followup.send("I'm elon!")
 
-
+# bye command
 @tree.command(name="bye", description="say goodbye")
 async def bye(interaction: discord.Interaction):
     await interaction.response.send_message(f"Goodbye {interaction.user}!")
 
-
-
+# help command
 @tree.command(name="help", description="show bot info")
 async def help(interaction: discord.Interaction):
     info = discord.Embed(title="Elon can:", description="Say hello/goodbye\nPlay Rock Paper Scissors\nBe your calculator\nChange Status", colour=discord.Colour.red())
     info.set_image(url="https://i.pinimg.com/originals/5f/91/f4/5f91f46852965b1e366b526ab8089a06.gif")
     await interaction.response.send_message(content=None, embed=info)
 
-
+    
+# command that calculates averages
 @tree.command(name="average", description="calculate average of numbers")
 async def average(interaction: discord.Interaction, values:str):
     values = [float(value) for value in values.split(" ")]
@@ -53,7 +55,7 @@ async def average(interaction: discord.Interaction, values:str):
     await interaction.response.send_message(avg)
 
 
-
+# command that performs + - / * ** calculations
 @tree.command(name="calculate", description="Perform simple math calculations")
 async def calculate(interaction: discord.Interaction, num1:int, operation:str, num2:int):
 
@@ -66,12 +68,12 @@ async def calculate(interaction: discord.Interaction, num1:int, operation:str, n
         case _: await interaction.response.send_message("Invalid operation")
   
 
-
+# command that gives a random number from an interval
 @tree.command(name="random", description="Generates a random number from range")
 async def random_number(interaction: discord.Interaction, num1:int, num2:int):
     await interaction.response.send_message(random.randint(num1, num2))
     
-
+# command that flips a coin
 @tree.command(name="flipcoin", description="Flips a coin")
 async def flipcoin(interaction: discord.Interaction):
     await interaction.response.send_message(random.choice(["Heads", "Tails"]))
@@ -82,6 +84,7 @@ async def flipcoin(interaction: discord.Interaction):
 async def role(interaction: discord.Interaction, role: discord.Role):
     await interaction.user.add_roles(role)
     await interaction.response.send_message(f"Added {role} to {interaction.user}")
+
 
 class MyButton(Button):
     def __init__(self, author, id, emoji): # override 
@@ -111,11 +114,8 @@ class MyButton(Button):
             #lose
             await interaction.response.send_message(f"elon played **{bot_play}**... elon wins!")
 
-   
 
-
-
-
+# command to play rock paper scissors
 @tree.command(name="rps", description="Rock paper scissors game")
 async def rps(interaction: discord.Interaction):
 
@@ -133,10 +133,7 @@ async def rps(interaction: discord.Interaction):
     await interaction.response.send_message("Let's play!", view=view, delete_after=60)
 
 
-
-   
-
-
+# command that changes bot's current status
 @tree.command(name="status", description="change bot status")
 async def changed_status(interaction: discord.Interaction, status: str):
     status = status.title()
@@ -166,11 +163,13 @@ async def changed_status(interaction: discord.Interaction, status: str):
     await interaction.response.send_message("Choose an Activity to Display!", view=view, ephemeral=True,delete_after=10)
     
 
+# ping command
 @tree.command(name="ping", description="Tests the bot's response time (latency)")
 async def ping(interaction: discord.Interaction):
     await interaction.response.send_message(f"Pong! :ping_pong:\n**Time:** {round (client.latency * 1000)} ms")
 
-
+    
+# command that displays user information
 @tree.command(name="user", description="Displays user information in the server")
 async def user(interaction: discord.Interaction):
 
@@ -186,7 +185,8 @@ async def user(interaction: discord.Interaction):
 
     await interaction.response.send_message(content=None, embed=embed)
     
-    
+   
+# command that translates a sentence to given language
 @tree.command(name="translate", description="Translate a sentence to the selected language")
 async def translate(interaction: discord.Interaction, target: str, text: str):
 
