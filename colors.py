@@ -1,6 +1,7 @@
-# ANSI Escape Codes 
+from enum import Enum
 
-class Colors:
+# ANSI Escape Codes enum class
+class Colors(Enum):
     red='\033[31m'
     green='\033[32m'
     lightgrey='\033[37m'
